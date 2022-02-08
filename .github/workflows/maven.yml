@@ -17,7 +17,7 @@ jobs:
         java: [ '8', '11', '17' ]
         playwright: ['1.17.0', '1.18.0']
     runs-on: ${{ matrix.os }}
-    name: Java ${{ matrix.java }}
+    name: ${{matrix.os}} - Java ${{ matrix.java }} - Playwright ${{matrix.playwright}}
     steps:
       - uses: actions/checkout@v2
       - name: Setup java
@@ -25,4 +25,4 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
-      - run: mvn test -Dplaywright.version=${{matrix.playwright}} --file pom.xml
+      - run: mvn test "-Dplaywright.version=${{matrix.playwright}}" --file pom.xml
