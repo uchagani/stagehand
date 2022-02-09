@@ -5,10 +5,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import io.github.uchagani.stagehand.PageFactory;
 import io.github.uchagani.stagehand.exeptions.MissingPageObjectAnnotation;
-import io.github.uchagani.stagehand.pages.PageWithConstructor;
-import io.github.uchagani.stagehand.pages.PageWithoutConstructor;
-import io.github.uchagani.stagehand.pages.PageWithoutPageObjectAnnotation;
-import io.github.uchagani.stagehand.pages.InheritedPageWithoutConstructor;
+import io.github.uchagani.stagehand.pages.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -83,12 +80,37 @@ public class PageFactoryTests {
     }
 
     @Test
-    public void initElements_canInitializeFields_inClassWithAConstructor() {
+    public void initElements_canInitializeFieldsInClass_with_aConstructor() {
         PageWithConstructor homePage = new PageWithConstructor(page);
         PageFactory.initElements(homePage, page);
 
         assertThat(homePage.header.textContent()).isEqualTo("Header Text");
         assertThat(homePage.paragraph.textContent()).isEqualTo("This is a paragraph.");
+    }
+
+    @Test
+    public void initElements_canInitializeFieldsInClass_without_aConstructor() {
+        PageWithoutConstructor homePage = new PageWithoutConstructor();
+        PageFactory.initElements(homePage, page);
+
+        assertThat(homePage.header.textContent()).isEqualTo("Header Text");
+        assertThat(homePage.paragraph.textContent()).isEqualTo("This is a paragraph.");
+    }
+
+    @Test
+    public void create_canFindLocatorsInsideIframe() {
+        page.setContent(HTMLConstants.IFRAME_HTML);
+        PageWithIframe iframePage = PageFactory.create(PageWithIframe.class, page);
+
+        assertThat(iframePage.paragraph.textContent()).isEqualTo("Hello from inside an iframe!");
+    }
+
+    @Test
+    public void create_canFindLocatorsInsideNestedIframe() {
+        page.setContent(HTMLConstants.IFRAME_HTML);
+        PageWithNestedIframe iframePage = PageFactory.create(PageWithNestedIframe.class, page);
+
+        assertThat(iframePage.paragraph.textContent()).isEqualTo("Child iFrame paragraph");
     }
 
 }
