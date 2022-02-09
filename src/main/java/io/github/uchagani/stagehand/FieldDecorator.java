@@ -18,14 +18,6 @@ public class FieldDecorator {
     }
 
     public Object decorate(ClassLoader loader, Field field) {
-        if (!Locator.class.isAssignableFrom(field.getType())) {
-            return null;
-        }
-
-        if (!field.isAnnotationPresent(Find.class)) {
-            return null;
-        }
-
         Locator locator = locatorFactory.createLocator(field);
         return proxyForLocator(loader, locator);
     }
