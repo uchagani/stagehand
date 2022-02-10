@@ -54,6 +54,14 @@ public class PageFactoryTests {
     }
 
     @Test
+    public void create_canInitialize_dependentFields() {
+        PageWithoutConstructor homePage = PageFactory.create(PageWithoutConstructor.class, page);
+
+        assertThat(homePage.firstNameInput.getAttribute("placeholder")).isEqualTo("First Name");
+        assertThat(homePage.lastNameInput.getAttribute("placeholder")).isEqualTo("Last Name");
+    }
+
+    @Test
     public void initElements_canInitializeFieldsMarkedWithFindAnnotation() {
         PageWithoutConstructor homePage = new PageWithoutConstructor();
         PageFactory.initElements(homePage, page);

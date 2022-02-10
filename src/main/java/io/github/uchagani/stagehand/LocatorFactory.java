@@ -5,6 +5,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import io.github.uchagani.stagehand.annotations.Find;
 import io.github.uchagani.stagehand.annotations.PageObject;
+import io.github.uchagani.stagehand.annotations.Under;
 
 import java.lang.reflect.Field;
 
@@ -15,13 +16,26 @@ public class LocatorFactory {
         this.page = page;
     }
 
-    public Locator createLocator(Field field) {
+    public Locator createLocator(Field field, Object pageObjectInstance) {
         Class<?> clazz = field.getDeclaringClass();
         PageObject pageAnnotation = clazz.getAnnotation(PageObject.class);
         Find findAnnotation = field.getAnnotation(Find.class);
+        Under underAnnotation = field.getAnnotation(Under.class);
 
         if (pageAnnotation.frame().length == 0) {
-            return page.locator(findAnnotation.value());
+            if (underAnnotation == null) {
+                return page.locator(findAnnotation.value());
+            }
+
+            Locator locator;
+            try {
+                Field depField = clazz.getField(underAnnotation.value());
+                locator = (Locator) depField.get(pageObjectInstance);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new RuntimeException(e.getCause());
+            }
+
+            return locator.locator(findAnnotation.value());
         }
 
         FrameLocator frameLocator = page.frameLocator(pageAnnotation.frame()[0]);

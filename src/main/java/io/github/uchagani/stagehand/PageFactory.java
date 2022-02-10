@@ -11,7 +11,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 
 public class PageFactory {
@@ -20,7 +20,7 @@ public class PageFactory {
     }
 
     public static void initElements(Object pageObject, Page page) {
-        if(pageObject.getClass().isAnnotationPresent(PageObject.class)) {
+        if (pageObject.getClass().isAnnotationPresent(PageObject.class)) {
             initElements(new FieldDecorator(page), pageObject);
         } else {
             throw new MissingPageObjectAnnotation("Only pages marked with @PageObject can can be initialized by the PageFactory.");
@@ -29,13 +29,13 @@ public class PageFactory {
 
     private static <T> T instantiatePage(Class<T> pageClassToProxy, Page page) {
         try {
-            if(pageClassToProxy.isAnnotationPresent(PageObject.class)) {
+            if (pageClassToProxy.isAnnotationPresent(PageObject.class)) {
                 T pageObjectInstance;
                 try {
                     Constructor<T> constructor = pageClassToProxy.getConstructor(Page.class);
                     pageObjectInstance = constructor.newInstance(page);
                 } catch (NoSuchMethodException e) {
-                    pageObjectInstance =  pageClassToProxy.getDeclaredConstructor().newInstance();
+                    pageObjectInstance = pageClassToProxy.getDeclaredConstructor().newInstance();
                 }
                 initElements(new FieldDecorator(page), pageObjectInstance);
                 return pageObjectInstance;
@@ -48,46 +48,49 @@ public class PageFactory {
     }
 
     private static void initElements(FieldDecorator decorator, Object pageObjectInstance) {
-        Class<?> proxyIn = pageObjectInstance.getClass();
-        while (proxyIn != Object.class) {
-            proxyFields(decorator, pageObjectInstance, proxyIn);
-            proxyIn = proxyIn.getSuperclass();
+        Class<?> pageObjectClass = pageObjectInstance.getClass();
+        while (pageObjectClass != Object.class) {
+            proxyFields(decorator, pageObjectInstance, pageObjectClass);
+            pageObjectClass = pageObjectClass.getSuperclass();
         }
     }
 
-    private static void proxyFields(FieldDecorator decorator, Object page, Class<?> proxyIn) {
-        Field[] fields = proxyIn.getDeclaredFields();
-        List<String> proxiedFields = new ArrayList<>();
-        List<Field> scopedFields = new ArrayList<>();
+    private static void proxyFields(FieldDecorator decorator, Object pageObjectInstance, Class<?> pageObjectClass) {
+        Field[] fields = pageObjectClass.getDeclaredFields();
+        List<String> fieldNamesAlreadyProxied = new ArrayList<>();
+        List<Field> fieldsWithDependencies = new ArrayList<>();
 
         for (Field field : fields) {
-            if(isProxyable(field)) {
-                if(hasDependencies(field)) {
-                    scopedFields.add(field);
+            if (isProxyable(field)) {
+                if (hasDependencies(field)) {
+                    fieldsWithDependencies.add(field);
                     continue;
                 }
-                proxyField(decorator, field, page);
-                proxiedFields.add(field.getName());
+                proxyField(decorator, field, pageObjectInstance);
+                fieldNamesAlreadyProxied.add(field.getName());
             }
         }
 
-        int size = scopedFields.size();
-        while(!scopedFields.isEmpty()) {
+        int sizeBefore;
+        while (!fieldsWithDependencies.isEmpty()) {
+            sizeBefore = fieldsWithDependencies.size();
             List<Field> proxiedScopedFields = new ArrayList<>();
-            for(Field field : scopedFields) {
-                List<String> dependencies = Arrays.asList(field.getAnnotation(Under.class).value());
-                if(proxiedFields.containsAll(dependencies)) {
-                    proxyField(decorator, field, page);
-                    proxiedFields.add(field.getName());
+
+            for (Field field : fieldsWithDependencies) {
+                List<String> dependencyNames = Collections.singletonList(field.getAnnotation(Under.class).value());
+
+                if (fieldNamesAlreadyProxied.containsAll(dependencyNames)) {
+                    proxyField(decorator, field, pageObjectInstance);
+                    fieldNamesAlreadyProxied.add(field.getName());
                     proxiedScopedFields.add(field);
                 }
             }
 
-            for(Field proxied : proxiedScopedFields) {
-                scopedFields.remove(proxied);
+            for (Field proxied : proxiedScopedFields) {
+                fieldsWithDependencies.remove(proxied);
             }
 
-            if(size == scopedFields.size()) {
+            if (sizeBefore == fieldsWithDependencies.size()) {
                 throw new RuntimeException("Unable to find dependencies for the following Fields:");
             }
         }
@@ -105,12 +108,12 @@ public class PageFactory {
         return field.isAnnotationPresent(Find.class);
     }
 
-    private static void proxyField(FieldDecorator decorator, Field field, Object page) {
-        Object value = decorator.decorate(page.getClass().getClassLoader(), field);
+    private static void proxyField(FieldDecorator decorator, Field field, Object pageObjectInstance) {
+        Object value = decorator.decorate(field, pageObjectInstance);
         if (value != null) {
             try {
                 field.setAccessible(true);
-                field.set(page, value);
+                field.set(pageObjectInstance, value);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }

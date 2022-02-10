@@ -17,21 +17,21 @@ public class PageWithoutConstructor {
     public Locator firstNameFormDiv;
 
     @Find("form")
-    @Under({"firstNameFormDiv"})
+    @Under("firstNameFormDiv")
     public Locator firstNameForm;
 
     @Find("input")
-    @Under({"firstNameForm"})
+    @Under("firstNameForm")
     public Locator firstNameInput;
 
     @Find("#lastNameFormDiv")
     public Locator lastNameFormDiv;
 
     @Find("form")
-    @Under({"lastNameFormDiv"})
+    @Under("lastNameFormDiv")
     public Locator lastNameForm;
 
     @Find("input")
-    @Under({"lastNameFormDiv", "lastNameForm"})
+    @Under("lastNameForm")
     public Locator lastNameInput;
 }

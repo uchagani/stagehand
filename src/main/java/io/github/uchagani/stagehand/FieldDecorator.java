@@ -17,8 +17,9 @@ public class FieldDecorator {
         this.locatorFactory = new LocatorFactory(page);
     }
 
-    public Object decorate(ClassLoader loader, Field field) {
-        Locator locator = locatorFactory.createLocator(field);
+    public Object decorate(Field field, Object pageObjectInstance) {
+        Locator locator = locatorFactory.createLocator(field, pageObjectInstance);
+        ClassLoader loader = pageObjectInstance.getClass().getClassLoader();
         return proxyForLocator(loader, locator);
     }
 
