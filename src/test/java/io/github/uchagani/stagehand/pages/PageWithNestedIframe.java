@@ -6,6 +6,8 @@ import io.github.uchagani.stagehand.annotations.PageObject;
 
 @PageObject(frame = {"#parentIframe", "#childIframe"})
 public class PageWithNestedIframe {
+
     @Find("#child-iframe-paragraph")
     public Locator paragraph;
+
 }
