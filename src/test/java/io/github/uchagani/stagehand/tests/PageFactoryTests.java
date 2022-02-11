@@ -62,6 +62,25 @@ public class PageFactoryTests {
     }
 
     @Test
+    public void create_canInitialize_dependentFields_inChildClass() {
+        InheritedPageWithoutConstructor homePage = PageFactory.create(InheritedPageWithoutConstructor.class, page);
+
+        assertThat(homePage.cityInput.getAttribute("placeholder")).isEqualTo("City");
+        assertThat(homePage.firstNameInput.getAttribute("placeholder")).isEqualTo("First Name");
+        assertThat(homePage.lastNameInput.getAttribute("placeholder")).isEqualTo("Last Name");
+    }
+
+    @Test
+    public void initElements_canInitialize_dependentFields_inChildClass() {
+        InheritedPageWithoutConstructor homePage = new InheritedPageWithoutConstructor();
+        PageFactory.initElements(homePage, page);
+
+        assertThat(homePage.cityInput.getAttribute("placeholder")).isEqualTo("City");
+        assertThat(homePage.firstNameInput.getAttribute("placeholder")).isEqualTo("First Name");
+        assertThat(homePage.lastNameInput.getAttribute("placeholder")).isEqualTo("Last Name");
+    }
+
+    @Test
     public void initElements_canInitialize_dependentFields() {
         PageWithoutConstructor homePage = new PageWithoutConstructor();
         PageFactory.initElements(homePage, page);

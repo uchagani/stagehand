@@ -48,50 +48,60 @@ public class PageFactory {
     }
 
     private static void initElements(FieldDecorator decorator, Object pageObjectInstance) {
+        List<Class<?>> classes = new ArrayList<>();
         Class<?> pageObjectClass = pageObjectInstance.getClass();
+
         while (pageObjectClass != Object.class) {
-            proxyFields(decorator, pageObjectInstance, pageObjectClass);
+            classes.add(pageObjectClass);
             pageObjectClass = pageObjectClass.getSuperclass();
         }
+
+        // Initialize in reverse order so base classes get initialized first
+        // so its fields are available to child classes
+        Collections.reverse(classes);
+        proxyFields(decorator, pageObjectInstance, classes);
     }
 
-    private static void proxyFields(FieldDecorator decorator, Object pageObjectInstance, Class<?> pageObjectClass) {
-        Field[] fields = pageObjectClass.getDeclaredFields();
+    private static void proxyFields(FieldDecorator decorator, Object pageObjectInstance, List<Class<?>> classes) {
         List<String> fieldNamesAlreadyProxied = new ArrayList<>();
         List<Field> fieldsWithDependencies = new ArrayList<>();
 
-        for (Field field : fields) {
-            if (isProxyable(field)) {
-                if (hasDependencies(field)) {
-                    fieldsWithDependencies.add(field);
-                    continue;
-                }
-                proxyField(decorator, field, pageObjectInstance);
-                fieldNamesAlreadyProxied.add(field.getName());
-            }
-        }
+        for (Class<?> pageObjectClass : classes) {
+            Field[] fields = pageObjectClass.getDeclaredFields();
 
-        int sizeBefore;
-        while (!fieldsWithDependencies.isEmpty()) {
-            sizeBefore = fieldsWithDependencies.size();
-            List<Field> proxiedScopedFields = new ArrayList<>();
-
-            for (Field field : fieldsWithDependencies) {
-                List<String> dependencyNames = Collections.singletonList(field.getAnnotation(Under.class).value());
-
-                if (fieldNamesAlreadyProxied.containsAll(dependencyNames)) {
+            for (Field field : fields) {
+                if (isProxyable(field)) {
+                    if (hasDependencies(field)) {
+                        fieldsWithDependencies.add(field);
+                        continue;
+                    }
                     proxyField(decorator, field, pageObjectInstance);
                     fieldNamesAlreadyProxied.add(field.getName());
-                    proxiedScopedFields.add(field);
                 }
             }
 
-            for (Field proxied : proxiedScopedFields) {
-                fieldsWithDependencies.remove(proxied);
-            }
+            int sizeBefore;
+            while (!fieldsWithDependencies.isEmpty()) {
+                sizeBefore = fieldsWithDependencies.size();
+                List<Field> proxiedScopedFields = new ArrayList<>();
 
-            if (sizeBefore == fieldsWithDependencies.size()) {
-                throw new RuntimeException("Unable to find dependencies for the following Fields:");
+                for (Field field : fieldsWithDependencies) {
+                    List<String> dependencyNames = Collections.singletonList(field.getAnnotation(Under.class).value());
+
+                    if (fieldNamesAlreadyProxied.containsAll(dependencyNames)) {
+                        proxyField(decorator, field, pageObjectInstance);
+                        fieldNamesAlreadyProxied.add(field.getName());
+                        proxiedScopedFields.add(field);
+                    }
+                }
+
+                for (Field proxied : proxiedScopedFields) {
+                    fieldsWithDependencies.remove(proxied);
+                }
+
+                if (sizeBefore == fieldsWithDependencies.size()) {
+                    throw new RuntimeException("Unable to find dependencies for the following Fields:");
+                }
             }
         }
     }
