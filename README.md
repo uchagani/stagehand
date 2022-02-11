@@ -1,6 +1,6 @@
 # Stagehand
 
-Page Objects for [Playwright Java](https://playwright.dev/java/) made easy!
+*Page Objects for [Playwright Java](https://playwright.dev/java/) made easy!*
 
 Stagehand is a Java library that helps you create clean and readable Page Objects. Inspired
 by [Selenium's PageFactory](https://github.com/SeleniumHQ/selenium/wiki/PageFactory), Stagehand allows you to create
