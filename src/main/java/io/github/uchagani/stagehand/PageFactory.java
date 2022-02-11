@@ -5,6 +5,7 @@ import com.microsoft.playwright.Page;
 import io.github.uchagani.stagehand.annotations.Find;
 import io.github.uchagani.stagehand.annotations.PageObject;
 import io.github.uchagani.stagehand.annotations.Under;
+import io.github.uchagani.stagehand.exeptions.InvalidParentLocatorException;
 import io.github.uchagani.stagehand.exeptions.MissingPageObjectAnnotation;
 
 import java.lang.reflect.Constructor;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PageFactory {
     public static <T> T create(Class<T> pageToCreate, Page page) {
@@ -100,7 +102,11 @@ public class PageFactory {
                 }
 
                 if (sizeBefore == fieldsWithDependencies.size()) {
-                    throw new RuntimeException("Unable to find dependencies for the following Fields:");
+                    String fieldNames = fieldsWithDependencies.stream().map(Field::getName).collect(Collectors.joining(","));
+                    String message = String.format("Unable to find dependencies for the following Fields:\nPage Object: %s\n%s",
+                            pageObjectClass.getName(), fieldNames);
+
+                    throw new InvalidParentLocatorException(message);
                 }
             }
         }
