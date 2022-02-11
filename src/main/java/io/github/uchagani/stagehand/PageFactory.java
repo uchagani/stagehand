@@ -102,8 +102,9 @@ public class PageFactory {
                 }
 
                 if (sizeBefore == fieldsWithDependencies.size()) {
-                    String fieldNames = fieldsWithDependencies.stream().map(Field::getName).collect(Collectors.joining(","));
-                    String message = String.format("Unable to find dependencies for the following Fields:\nPage Object: %s\n%s",
+                    String fieldNames = fieldsWithDependencies.stream().map(Field::getName).collect(Collectors.joining(", "));
+                    String message = String.format(
+                            "\nUnable to find dependencies for the following Fields:\nPage Object: %s\nFields: %s",
                             pageObjectClass.getName(), fieldNames);
 
                     throw new InvalidParentLocatorException(message);
