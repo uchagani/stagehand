@@ -6,9 +6,13 @@ import io.github.uchagani.stagehand.annotations.PageObject;
 import io.github.uchagani.stagehand.annotations.Under;
 
 @PageObject
-public class InheritedPageWithoutConstructor extends PageWithoutConstructor {
+public class PageWithBadDependentLocator {
 
-    @Under("lastNameFormDiv")
-    @Find("#cityDiv input")
-    public Locator cityInput;
+    @Under("someBadLocator")
+    @Find("#headerId")
+    public Locator headerId;
+
+    @Under("anotherBadLocator")
+    @Find(".paragraph")
+    public Locator paragraph;
 }

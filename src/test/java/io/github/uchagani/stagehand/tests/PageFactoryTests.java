@@ -4,6 +4,7 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import io.github.uchagani.stagehand.PageFactory;
+import io.github.uchagani.stagehand.exeptions.InvalidParentLocatorException;
 import io.github.uchagani.stagehand.exeptions.MissingPageObjectAnnotation;
 import io.github.uchagani.stagehand.pages.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +39,13 @@ public class PageFactoryTests {
     }
 
     @Test
+    public void create_throwsException_whenTryingToInitializePage_withDependentLocatorThat_doesNot_exist() {
+        assertThatThrownBy(() -> {
+            PageFactory.create(PageWithBadDependentLocator.class, page);
+        }).isInstanceOf(InvalidParentLocatorException.class);
+    }
+
+    @Test
     public void create_canInitializeFieldsInBaseClass_whenBeingCalledOnChildClass() {
         InheritedPageWithoutConstructor inheritedPage = PageFactory.create(InheritedPageWithoutConstructor.class, page);
 
@@ -57,6 +65,33 @@ public class PageFactoryTests {
     public void create_canInitialize_dependentFields() {
         PageWithoutConstructor homePage = PageFactory.create(PageWithoutConstructor.class, page);
 
+        assertThat(homePage.firstNameInput.getAttribute("placeholder")).isEqualTo("First Name");
+        assertThat(homePage.lastNameInput.getAttribute("placeholder")).isEqualTo("Last Name");
+    }
+
+    @Test
+    public void create_canInitialize_dependentFields_inChildClass() {
+        InheritedPageWithoutConstructor homePage = PageFactory.create(InheritedPageWithoutConstructor.class, page);
+
+        assertThat(homePage.cityInput.getAttribute("placeholder")).isEqualTo("City");
+        assertThat(homePage.firstNameInput.getAttribute("placeholder")).isEqualTo("First Name");
+        assertThat(homePage.lastNameInput.getAttribute("placeholder")).isEqualTo("Last Name");
+    }
+
+    @Test
+    public void initElements_throwsException_whenTryingToInitializePage_withDependentLocatorThat_doesNot_exist() {
+        assertThatThrownBy(() -> {
+            PageWithBadDependentLocator homePage = new PageWithBadDependentLocator();
+            PageFactory.initElements(homePage, page);
+        }).isInstanceOf(InvalidParentLocatorException.class);
+    }
+
+    @Test
+    public void initElements_canInitialize_dependentFields_inChildClass() {
+        InheritedPageWithoutConstructor homePage = new InheritedPageWithoutConstructor();
+        PageFactory.initElements(homePage, page);
+
+        assertThat(homePage.cityInput.getAttribute("placeholder")).isEqualTo("City");
         assertThat(homePage.firstNameInput.getAttribute("placeholder")).isEqualTo("First Name");
         assertThat(homePage.lastNameInput.getAttribute("placeholder")).isEqualTo("Last Name");
     }
