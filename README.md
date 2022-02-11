@@ -42,11 +42,15 @@ class and an instance of Playwright's [Page](https://playwright.dev/java/docs/pa
 HomePage homePage=PageFactory.create(HomePage.class,page)
 ```
 
+The PageFactory can create an instance of any page that has a default constructor or a constructor with just a
+Playwright Page parameter.
+
 ## Iframes
 
 Stagehand gives you the ability to easily locate elements inside an Iframe by passing in a selector to find the Iframe:
 
 ```java
+
 @PageObject(frame = {".iframe-foo"})
 public class PageWithIframe {
 
@@ -63,12 +67,13 @@ The above example is equivalent to Playwright's `page.frameLocator(".iframe-foo"
 ## Dependent Locators
 
 At times, you may want to find a locator that is under another locator. The way to do this in Playwright would
-be: `page.locator("#parent").locator(".child")`.  To define this in Stagehand you can use the `@Under` annotation:
+be: `page.locator("#parent").locator(".child")`. To define this in Stagehand you can use the `@Under` annotation:
 
 ```java
+
 @PageObject
 public class HomePage {
-    
+
     @Find("#parent")
     public Locator parentLocator;
 
