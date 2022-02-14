@@ -165,4 +165,12 @@ public class PageFactoryTests {
         assertThat(iframePage.paragraph.textContent()).isEqualTo("Child iFrame paragraph");
     }
 
+    @Test
+    public void create_canInitializePageObjects_thatHaveOtherPageObjectsAsFields() {
+        page.setContent(HTMLConstants.IFRAME_HTML);
+        PageWithEmbeddedPageObject homePage = PageFactory.create(PageWithEmbeddedPageObject.class, page);
+
+        assertThat(homePage.embeddedIframe.paragraph.textContent()).isEqualTo("Hello from inside an iframe!");
+    }
+
 }
