@@ -26,4 +26,9 @@ public class LocatorHandler implements InvocationHandler {
             throw e.getCause();
         }
     }
+
+    public Locator getProxiedLocator() {
+        return locator;
+    }
+
 }

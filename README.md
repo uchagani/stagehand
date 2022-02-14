@@ -89,6 +89,28 @@ public class HomePage {
 
 The value you pass to the `@Under` annotation should be the name of the parent Locator.
 
+## Assertions
+
+Because of the way `Locator` fields are initialized by the `PageFactory`, you have to use Stagehand's `assertThat`
+method in order to use Playwright's Assertions. But don't worry, it's very simple and the only difference is the import
+statement:
+
+```java
+// Import Stagehand's assertThat method instead of Playwright's assertThat.
+
+import static io.github.uchagani.stagehand.Assertions.assertThat;
+
+public void HomePageTests{
+    
+@Test
+public void myTest() {
+    HomePage homePage = PageFactory.create(HomePage.class, page);
+
+    assertThat(homePage.header).containsText("Header Text");
+    assertThat(homePage.paragraph).containsText("This is a paragraph.");
+}
+```
+
 ## Requirements
 
 Stagehand requires Java 8+ and Playwright 1.17.0+.

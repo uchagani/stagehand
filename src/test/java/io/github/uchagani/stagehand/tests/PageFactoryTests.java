@@ -10,7 +10,7 @@ import io.github.uchagani.stagehand.pages.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static io.github.uchagani.stagehand.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 public class PageFactoryTests {
@@ -24,11 +24,19 @@ public class PageFactoryTests {
     }
 
     @Test
+    public void create_canInitializeFieldsMarkedWithFindAnnotation_withPlaywrightAssertions() {
+        PageWithoutConstructor homePage = PageFactory.create(PageWithoutConstructor.class, page);
+
+        assertThat(homePage.header).containsText("Header Text");
+        assertThat(homePage.paragraph).containsText("This is a paragraph.");
+    }
+
+    @Test
     public void create_canInitializeFieldsMarkedWithFindAnnotation() {
         PageWithoutConstructor homePage = PageFactory.create(PageWithoutConstructor.class, page);
 
-        assertThat(homePage.header.textContent()).isEqualTo("Header Text");
-        assertThat(homePage.paragraph.textContent()).isEqualTo("This is a paragraph.");
+        assertThat(homePage.header).containsText("Header Text");
+        assertThat(homePage.paragraph).containsText("This is a paragraph.");
     }
 
     @Test
@@ -49,33 +57,33 @@ public class PageFactoryTests {
     public void create_canInitializeFieldsInBaseClass_whenBeingCalledOnChildClass() {
         InheritedPageWithoutConstructor inheritedPage = PageFactory.create(InheritedPageWithoutConstructor.class, page);
 
-        assertThat(inheritedPage.header.textContent()).isEqualTo("Header Text");
-        assertThat(inheritedPage.paragraph.textContent()).isEqualTo("This is a paragraph.");
+        assertThat(inheritedPage.header).containsText("Header Text");
+        assertThat(inheritedPage.paragraph).containsText("This is a paragraph.");
     }
 
     @Test
     public void create_canInitializeFields_inClassWithAConstructor() {
         PageWithConstructor homePage = PageFactory.create(PageWithConstructor.class, page);
 
-        assertThat(homePage.header.textContent()).isEqualTo("Header Text");
-        assertThat(homePage.paragraph.textContent()).isEqualTo("This is a paragraph.");
+        assertThat(homePage.header).containsText("Header Text");
+        assertThat(homePage.paragraph).containsText("This is a paragraph.");
     }
 
     @Test
     public void create_canInitialize_dependentFields() {
         PageWithoutConstructor homePage = PageFactory.create(PageWithoutConstructor.class, page);
 
-        assertThat(homePage.firstNameInput.getAttribute("placeholder")).isEqualTo("First Name");
-        assertThat(homePage.lastNameInput.getAttribute("placeholder")).isEqualTo("Last Name");
+        assertThat(homePage.firstNameInput).hasAttribute("placeholder", "First Name");
+        assertThat(homePage.lastNameInput).hasAttribute("placeholder", "Last Name");
     }
 
     @Test
     public void create_canInitialize_dependentFields_inChildClass() {
         InheritedPageWithoutConstructor homePage = PageFactory.create(InheritedPageWithoutConstructor.class, page);
 
-        assertThat(homePage.cityInput.getAttribute("placeholder")).isEqualTo("City");
-        assertThat(homePage.firstNameInput.getAttribute("placeholder")).isEqualTo("First Name");
-        assertThat(homePage.lastNameInput.getAttribute("placeholder")).isEqualTo("Last Name");
+        assertThat(homePage.cityInput).hasAttribute("placeholder", "City");
+        assertThat(homePage.firstNameInput).hasAttribute("placeholder", "First Name");
+        assertThat(homePage.lastNameInput).hasAttribute("placeholder", "Last Name");
     }
 
     @Test
@@ -91,9 +99,9 @@ public class PageFactoryTests {
         InheritedPageWithoutConstructor homePage = new InheritedPageWithoutConstructor();
         PageFactory.initElements(homePage, page);
 
-        assertThat(homePage.cityInput.getAttribute("placeholder")).isEqualTo("City");
-        assertThat(homePage.firstNameInput.getAttribute("placeholder")).isEqualTo("First Name");
-        assertThat(homePage.lastNameInput.getAttribute("placeholder")).isEqualTo("Last Name");
+        assertThat(homePage.cityInput).hasAttribute("placeholder", "City");
+        assertThat(homePage.firstNameInput).hasAttribute("placeholder", "First Name");
+        assertThat(homePage.lastNameInput).hasAttribute("placeholder", "Last Name");
     }
 
     @Test
@@ -101,8 +109,8 @@ public class PageFactoryTests {
         PageWithoutConstructor homePage = new PageWithoutConstructor();
         PageFactory.initElements(homePage, page);
 
-        assertThat(homePage.firstNameInput.getAttribute("placeholder")).isEqualTo("First Name");
-        assertThat(homePage.lastNameInput.getAttribute("placeholder")).isEqualTo("Last Name");
+        assertThat(homePage.firstNameInput).hasAttribute("placeholder", "First Name");
+        assertThat(homePage.lastNameInput).hasAttribute("placeholder", "Last Name");
     }
 
     @Test
@@ -110,8 +118,8 @@ public class PageFactoryTests {
         PageWithoutConstructor homePage = new PageWithoutConstructor();
         PageFactory.initElements(homePage, page);
 
-        assertThat(homePage.header.textContent()).isEqualTo("Header Text");
-        assertThat(homePage.paragraph.textContent()).isEqualTo("This is a paragraph.");
+        assertThat(homePage.header).containsText("Header Text");
+        assertThat(homePage.paragraph).containsText("This is a paragraph.");
     }
 
     @Test
@@ -127,8 +135,8 @@ public class PageFactoryTests {
         InheritedPageWithoutConstructor inheritedPage = new InheritedPageWithoutConstructor();
         PageFactory.initElements(inheritedPage, page);
 
-        assertThat(inheritedPage.header.textContent()).isEqualTo("Header Text");
-        assertThat(inheritedPage.paragraph.textContent()).isEqualTo("This is a paragraph.");
+        assertThat(inheritedPage.header).containsText("Header Text");
+        assertThat(inheritedPage.paragraph).containsText("This is a paragraph.");
     }
 
     @Test
@@ -136,8 +144,8 @@ public class PageFactoryTests {
         PageWithConstructor homePage = new PageWithConstructor(page);
         PageFactory.initElements(homePage, page);
 
-        assertThat(homePage.header.textContent()).isEqualTo("Header Text");
-        assertThat(homePage.paragraph.textContent()).isEqualTo("This is a paragraph.");
+        assertThat(homePage.header).containsText("Header Text");
+        assertThat(homePage.paragraph).containsText("This is a paragraph.");
     }
 
     @Test
@@ -145,8 +153,8 @@ public class PageFactoryTests {
         PageWithoutConstructor homePage = new PageWithoutConstructor();
         PageFactory.initElements(homePage, page);
 
-        assertThat(homePage.header.textContent()).isEqualTo("Header Text");
-        assertThat(homePage.paragraph.textContent()).isEqualTo("This is a paragraph.");
+        assertThat(homePage.header).containsText("Header Text");
+        assertThat(homePage.paragraph).containsText("This is a paragraph.");
     }
 
     @Test
@@ -154,7 +162,7 @@ public class PageFactoryTests {
         page.setContent(HTMLConstants.IFRAME_HTML);
         PageWithIframe iframePage = PageFactory.create(PageWithIframe.class, page);
 
-        assertThat(iframePage.paragraph.textContent()).isEqualTo("Hello from inside an iframe!");
+        assertThat(iframePage.paragraph).containsText("Hello from inside an iframe!");
     }
 
     @Test
@@ -162,7 +170,7 @@ public class PageFactoryTests {
         page.setContent(HTMLConstants.IFRAME_HTML);
         PageWithNestedIframe iframePage = PageFactory.create(PageWithNestedIframe.class, page);
 
-        assertThat(iframePage.paragraph.textContent()).isEqualTo("Child iFrame paragraph");
+        assertThat(iframePage.paragraph).containsText("Child iFrame paragraph");
     }
 
     @Test
@@ -170,7 +178,6 @@ public class PageFactoryTests {
         page.setContent(HTMLConstants.IFRAME_HTML);
         PageWithEmbeddedPageObject homePage = PageFactory.create(PageWithEmbeddedPageObject.class, page);
 
-        assertThat(homePage.embeddedIframe.paragraph.textContent()).isEqualTo("Hello from inside an iframe!");
+        assertThat(homePage.embeddedIframe.paragraph).containsText("Hello from inside an iframe!");
     }
-
 }
