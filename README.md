@@ -119,6 +119,7 @@ public void myTest() {
 }
 ```
 
+
 ## Requirements
 
-Stagehand requires Java 8+ and Playwright 1.17.0+.
+Stagehand requires Java 8+ and Playwright 1.18.0+.
