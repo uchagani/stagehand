@@ -8,6 +8,14 @@ locators easily by annotating fields.
 
 ## Installation
 
+```xml
+<dependency>
+    <groupId>io.github.uchagani</groupId>
+    <artifactId>stagehand</artifactId>
+    <version>1.0</version>
+</dependency>
+```
+
 ## Getting Started
 
 Creating a Page Object is as easy as annotating your class with `@PageObject`:
