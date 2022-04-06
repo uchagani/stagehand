@@ -119,6 +119,26 @@ public void myTest() {
 }
 ```
 
+## Hooks
+
+Stagehand allows you to define a method that will automatically be called after creation of the page object by the PageFactory.  
+To define a hook implement the `AfterCreate` interface and put whatever code you want in that method.
+
+```java
+import io.github.uchagani.stagehand.AfterCreate;
+
+@PageObject
+public class HomePage implements AfterCreate {
+
+    @Find("#some-id")
+    private Locator myButton;
+    
+    @Override
+    public void afterCreate() {
+        myButton.click();
+    }
+}
+```
 
 ## Requirements
 
