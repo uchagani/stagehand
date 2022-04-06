@@ -29,6 +29,12 @@ public class PageFactory {
         }
     }
 
+    private static void callAfterCreateHook(Object pageObjectInstance) {
+        if(AfterCreate.class.isAssignableFrom(pageObjectInstance.getClass())) {
+            ((AfterCreate)pageObjectInstance).afterCreate();
+        }
+    }
+
     private static <T> T instantiatePage(Class<T> pageClassToProxy, Page page) {
         try {
             if (pageClassToProxy.isAnnotationPresent(PageObject.class)) {
@@ -40,6 +46,7 @@ public class PageFactory {
                     pageObjectInstance = pageClassToProxy.getDeclaredConstructor().newInstance();
                 }
                 initElements(new LocatorFieldDecorator(page), pageObjectInstance);
+                callAfterCreateHook(pageObjectInstance);
                 return pageObjectInstance;
             }
             throw new MissingPageObjectAnnotation("Only pages marked with @PageObject can can be created by the PageFactory.");
