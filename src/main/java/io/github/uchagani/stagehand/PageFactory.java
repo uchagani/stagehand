@@ -23,9 +23,15 @@ public class PageFactory {
 
     public static void initElements(Object pageObject, Page page) {
         if (pageObject.getClass().isAnnotationPresent(PageObject.class)) {
-            initElements(new FieldDecorator(page), pageObject);
+            initElements(new LocatorFieldDecorator(page), pageObject);
         } else {
             throw new MissingPageObjectAnnotation("Only pages marked with @PageObject can can be initialized by the PageFactory.");
+        }
+    }
+
+    private static void callAfterCreateHook(Object pageObjectInstance) {
+        if(AfterCreate.class.isAssignableFrom(pageObjectInstance.getClass())) {
+            ((AfterCreate)pageObjectInstance).afterCreate();
         }
     }
 
@@ -39,7 +45,8 @@ public class PageFactory {
                 } catch (NoSuchMethodException e) {
                     pageObjectInstance = pageClassToProxy.getDeclaredConstructor().newInstance();
                 }
-                initElements(new FieldDecorator(page), pageObjectInstance);
+                initElements(new LocatorFieldDecorator(page), pageObjectInstance);
+                callAfterCreateHook(pageObjectInstance);
                 return pageObjectInstance;
             }
             throw new MissingPageObjectAnnotation("Only pages marked with @PageObject can can be created by the PageFactory.");

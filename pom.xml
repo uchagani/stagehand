@@ -6,12 +6,12 @@
 
     <groupId>io.github.uchagani</groupId>
     <artifactId>stagehand</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <playwright.version>1.18.0</playwright.version>
+        <playwright.version>1.20.1</playwright.version>
     </properties>
 
     <scm>
