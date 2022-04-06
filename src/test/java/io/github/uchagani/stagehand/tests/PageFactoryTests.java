@@ -1,6 +1,7 @@
 package io.github.uchagani.stagehand.tests;
 
 import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import io.github.uchagani.stagehand.PageFactory;
@@ -59,6 +60,13 @@ public class PageFactoryTests {
 
         assertThat(inheritedPage.header).containsText("Header Text");
         assertThat(inheritedPage.paragraph).containsText("This is a paragraph.");
+    }
+
+    @Test
+    public void afterCreateHookIsCalledSuccessfully() {
+        PageWithConstructor homePage = PageFactory.create(PageWithConstructor.class, page);
+
+        assertThat(homePage.cityInput).hasValue("New York");
     }
 
     @Test
