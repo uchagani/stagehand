@@ -120,6 +120,7 @@ public class HomePage implements AfterCreate {
 }
 ```
 
+
 ## Custom Elements
 
 Stagehand makes it easy to define custom elements. See the code in `src/test/java/io/github/uchagani/stagehand/custom`
