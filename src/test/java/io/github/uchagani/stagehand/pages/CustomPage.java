@@ -13,11 +13,5 @@ public class CustomPage {
 
     @Find("form")
     @Under("firstNameFormDiv")
-    public Locator firstNameForm;
-
-    @Find("input")
-    @Under("firstNameForm")
     public CustomInput customInput;
-
-    public String someNormalField = "batman";
 }

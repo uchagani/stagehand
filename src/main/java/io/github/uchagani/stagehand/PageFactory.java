@@ -127,10 +127,6 @@ public class PageFactory {
     }
 
     private static boolean isALocator(Field field) {
-//        if (!Locator.class.isAssignableFrom(field.getType())) {
-//            return false;
-//        }
-
         return field.isAnnotationPresent(Find.class);
     }
 

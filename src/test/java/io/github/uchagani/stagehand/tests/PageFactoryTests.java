@@ -20,7 +20,7 @@ public class PageFactoryTests {
 
     @BeforeEach
     public void beforeEach() {
-        Browser browser = Playwright.create().chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+        Browser browser = Playwright.create().chromium().launch();
         page = browser.newPage();
         page.setContent(HTMLConstants.SIMPLE_HTML);
     }
@@ -28,8 +28,8 @@ public class PageFactoryTests {
     @Test
     public void canInitializePageWithCustomFieldDecorator() {
         CustomPage homePage = PageFactory.create(CustomPage.class, page, new CustomElementFieldDecorator(page));
-        homePage.customInput.fill("foo");
-        assertThat(homePage.customInput.containerLocator).hasValue("foo");
+        homePage.customInput.customMethod("foo");
+        assertThat(homePage.customInput.input).hasValue("foo");
     }
 
     @Test
