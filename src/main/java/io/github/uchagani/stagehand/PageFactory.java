@@ -1,6 +1,5 @@
 package io.github.uchagani.stagehand;
 
-import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import io.github.uchagani.stagehand.annotations.Find;
 import io.github.uchagani.stagehand.annotations.PageObject;
@@ -11,14 +10,17 @@ import io.github.uchagani.stagehand.exeptions.MissingPageObjectAnnotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class PageFactory {
     public static <T> T create(Class<T> pageToCreate, Page page) {
-        return instantiatePage(pageToCreate, page);
+        return instantiatePage(pageToCreate, page, new LocatorFieldDecorator(page));
+    }
+
+    public static <T> T create(Class<T> pageToCreate, Page page, FieldDecorator decorator) {
+        return instantiatePage(pageToCreate, page, decorator);
     }
 
     public static void initElements(Object pageObject, Page page) {
@@ -35,17 +37,17 @@ public class PageFactory {
         }
     }
 
-    private static <T> T instantiatePage(Class<T> pageClassToProxy, Page page) {
+    private static <T> T instantiatePage(Class<T> pageObjectClass, Page page, FieldDecorator decorator) {
         try {
-            if (pageClassToProxy.isAnnotationPresent(PageObject.class)) {
+            if (pageObjectClass.isAnnotationPresent(PageObject.class)) {
                 T pageObjectInstance;
                 try {
-                    Constructor<T> constructor = pageClassToProxy.getConstructor(Page.class);
+                    Constructor<T> constructor = pageObjectClass.getConstructor(Page.class);
                     pageObjectInstance = constructor.newInstance(page);
                 } catch (NoSuchMethodException e) {
-                    pageObjectInstance = pageClassToProxy.getDeclaredConstructor().newInstance();
+                    pageObjectInstance = pageObjectClass.getDeclaredConstructor().newInstance();
                 }
-                initElements(new LocatorFieldDecorator(page), pageObjectInstance);
+                initElements(decorator, pageObjectInstance);
                 callAfterCreateHook(pageObjectInstance);
                 return pageObjectInstance;
             }
@@ -79,12 +81,12 @@ public class PageFactory {
             Field[] fields = pageObjectClass.getDeclaredFields();
 
             for (Field field : fields) {
-                if (isProxyable(field)) {
+                if (isALocator(field)) {
                     if (hasDependencies(field)) {
                         fieldsWithDependencies.add(field);
                         continue;
                     }
-                    proxyField(decorator, field, pageObjectInstance);
+                    setField(decorator, field, pageObjectInstance);
                     fieldNamesAlreadyProxied.add(field.getName());
                 }
             }
@@ -98,7 +100,7 @@ public class PageFactory {
                     List<String> dependencyNames = Collections.singletonList(field.getAnnotation(Under.class).value());
 
                     if (fieldNamesAlreadyProxied.containsAll(dependencyNames)) {
-                        proxyField(decorator, field, pageObjectInstance);
+                        setField(decorator, field, pageObjectInstance);
                         fieldNamesAlreadyProxied.add(field.getName());
                         proxiedScopedFields.add(field);
                     }
@@ -124,15 +126,11 @@ public class PageFactory {
         return field.isAnnotationPresent(Under.class);
     }
 
-    private static boolean isProxyable(Field field) {
-        if (!Locator.class.isAssignableFrom(field.getType())) {
-            return false;
-        }
-
+    private static boolean isALocator(Field field) {
         return field.isAnnotationPresent(Find.class);
     }
 
-    private static void proxyField(FieldDecorator decorator, Field field, Object pageObjectInstance) {
+    private static void setField(FieldDecorator decorator, Field field, Object pageObjectInstance) {
         Object value = decorator.decorate(field, pageObjectInstance);
         if (value != null) {
             try {
