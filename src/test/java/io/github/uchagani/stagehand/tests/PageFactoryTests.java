@@ -5,13 +5,14 @@ import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import io.github.uchagani.stagehand.PageFactory;
+import io.github.uchagani.stagehand.custom.CustomElementFieldDecorator;
 import io.github.uchagani.stagehand.exeptions.InvalidParentLocatorException;
 import io.github.uchagani.stagehand.exeptions.MissingPageObjectAnnotation;
 import io.github.uchagani.stagehand.pages.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static io.github.uchagani.stagehand.Assertions.assertThat;
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 public class PageFactoryTests {
@@ -19,9 +20,16 @@ public class PageFactoryTests {
 
     @BeforeEach
     public void beforeEach() {
-        Browser browser = Playwright.create().chromium().launch();
+        Browser browser = Playwright.create().chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
         page = browser.newPage();
         page.setContent(HTMLConstants.SIMPLE_HTML);
+    }
+
+    @Test
+    public void canInitializePageWithCustomFieldDecorator() {
+        CustomPage homePage = PageFactory.create(CustomPage.class, page, new CustomElementFieldDecorator(page));
+        homePage.customInput.fill("foo");
+        assertThat(homePage.customInput.containerLocator).hasValue("foo");
     }
 
     @Test
