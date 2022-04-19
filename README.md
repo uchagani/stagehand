@@ -9,6 +9,7 @@ locators easily by annotating fields.
 ## Installation
 
 ```xml
+
 <dependency>
     <groupId>io.github.uchagani</groupId>
     <artifactId>stagehand</artifactId>
@@ -97,31 +98,10 @@ public class HomePage {
 
 The value you pass to the `@Under` annotation should be the name of the parent Locator.
 
-## Assertions
-
-Because of the way `Locator` fields are initialized by the `PageFactory`, you have to use Stagehand's `assertThat`
-method in order to use Playwright's Assertions. But don't worry, it's very simple and the only difference is the import
-statement:
-
-```java
-// Import Stagehand's assertThat method instead of Playwright's assertThat.
-
-import static io.github.uchagani.stagehand.Assertions.assertThat;
-
-public void HomePageTests{
-    
-@Test
-public void myTest() {
-    HomePage homePage = PageFactory.create(HomePage.class, page);
-
-    assertThat(homePage.header).containsText("Header Text");
-    assertThat(homePage.paragraph).containsText("This is a paragraph.");
-}
-```
-
 ## Hooks
 
-Stagehand allows you to define a method that will automatically be called after creation of the page object by the PageFactory.  
+Stagehand allows you to define a method that will automatically be called after creation of the page object by the
+PageFactory.  
 To define a hook implement the `AfterCreate` interface and put whatever code you want in that method.
 
 ```java
@@ -132,13 +112,21 @@ public class HomePage implements AfterCreate {
 
     @Find("#some-id")
     private Locator myButton;
-    
+
     @Override
     public void afterCreate() {
         myButton.click();
     }
 }
 ```
+
+
+## Custom Elements
+
+Stagehand makes it easy to define custom elements. See the code in `src/test/java/io/github/uchagani/stagehand/custom`
+for an example on how to create custom elements.
+See [this test](https://github.com/uchagani/stagehand/blob/develop/src/test/java/io/github/uchagani/stagehand/tests/PageFactoryTests.java#L29)
+on how to use custom elements in your tests.
 
 ## Requirements
 
