@@ -24,16 +24,20 @@ public class PageFactory {
     }
 
     public static void initElements(Object pageObject, Page page) {
+        initElements(pageObject, new LocatorFieldDecorator(page));
+    }
+
+    public static void initElements(Object pageObject, FieldDecorator decorator) {
         if (pageObject.getClass().isAnnotationPresent(PageObject.class)) {
-            initElements(new LocatorFieldDecorator(page), pageObject);
+            initElements(decorator, pageObject);
         } else {
             throw new MissingPageObjectAnnotation("Only pages marked with @PageObject can can be initialized by the PageFactory.");
         }
     }
 
     private static void callAfterCreateHook(Object pageObjectInstance) {
-        if(AfterCreate.class.isAssignableFrom(pageObjectInstance.getClass())) {
-            ((AfterCreate)pageObjectInstance).afterCreate();
+        if (AfterCreate.class.isAssignableFrom(pageObjectInstance.getClass())) {
+            ((AfterCreate) pageObjectInstance).afterCreate();
         }
     }
 
