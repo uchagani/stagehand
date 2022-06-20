@@ -1,7 +1,6 @@
 package io.github.uchagani.stagehand.tests;
 
 import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import io.github.uchagani.stagehand.PageFactory;
@@ -9,6 +8,7 @@ import io.github.uchagani.stagehand.custom.CustomElementFieldDecorator;
 import io.github.uchagani.stagehand.exeptions.InvalidParentLocatorException;
 import io.github.uchagani.stagehand.exeptions.MissingPageObjectAnnotation;
 import io.github.uchagani.stagehand.pages.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,17 +17,33 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 public class PageFactoryTests {
     Page page;
+    Playwright playwright;
+    Browser browser;
 
     @BeforeEach
-    public void beforeEach() {
-        Browser browser = Playwright.create().chromium().launch();
+    void beforeEach() {
+        playwright = Playwright.create();
+        browser = playwright.chromium().launch();
         page = browser.newPage();
         page.setContent(HTMLConstants.SIMPLE_HTML);
     }
 
+    @AfterEach
+    void afterEach() {
+        playwright.close();
+    }
+
     @Test
-    public void canInitializePageWithCustomFieldDecorator() {
+    public void create_canInitialize_pageWithCustomFieldDecorator() {
         CustomPage homePage = PageFactory.create(CustomPage.class, page, new CustomElementFieldDecorator(page));
+        homePage.customInput.customMethod("foo");
+        assertThat(homePage.customInput.input).hasValue("foo");
+    }
+
+    @Test
+    public void initElements_canInitialize_pageWithCustomFieldDecorator() {
+        CustomPage homePage = new CustomPage();
+        PageFactory.initElements(homePage, new CustomElementFieldDecorator(page));
         homePage.customInput.customMethod("foo");
         assertThat(homePage.customInput.input).hasValue("foo");
     }
